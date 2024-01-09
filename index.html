@@ -2,7 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Exponential Dot Animation</title>
+    <title>Lots Of Dots</title>
+    <link id="favicon" rel="icon" href="" type="image/x-icon" />
+
     <style>
       body,
       html {
@@ -115,17 +117,19 @@
     <div id="animation-box"></div>
     <div id="controls">
       <button id="toggleMode" class="start-button">Start</button>
-      <div id="ballCount">Balls on screen: 1</div>
+      <div id="ballCount">Dots on screen: 1</div>
       <button class="info-button"></button>
     </div>
     <div id="info-modal">
       <span class="close-btn">&#10006;</span>
-      <img src="./nathan.jpg" alt="Nathan" />
+      <a href="https://www.linkedin.com/in/nathanclark88/" target="_blank">
+        <img src="./nathan.jpg" alt="Nathan" style="cursor: pointer" />
+      </a>
       <p>
-        This was created by
+        Made with ❤️ by
         <a href="https://www.linkedin.com/in/nathanclark88/" target="_blank"
           >Nathan</a
-        >.
+        >
       </p>
     </div>
 
@@ -140,7 +144,7 @@
       var dots = [];
 
       function updateBallCount() {
-        ballCountDisplay.textContent = "Balls on screen: " + dots.length;
+        ballCountDisplay.textContent = "Dots on screen: " + dots.length;
       }
 
       function getRandomColor() {
@@ -236,6 +240,35 @@
       closeBtn.addEventListener("click", function () {
         infoModal.style.display = "none";
       });
+
+      // Function to generate a random color
+      function getRandomColor() {
+        var letters = "0123456789ABCDEF";
+        var color = "#";
+        for (var i = 0; i < 6; i++) {
+          color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+      }
+
+      function setRandomFavicon() {
+        var canvas = document.createElement("canvas");
+        canvas.width = 16;
+        canvas.height = 16;
+        var ctx = canvas.getContext("2d");
+
+        ctx.fillStyle = getRandomColor();
+        ctx.beginPath();
+        ctx.arc(8, 8, 8, 0, 2 * Math.PI);
+        ctx.fill();
+
+        var favicon = document.getElementById("favicon");
+        favicon.href = canvas.toDataURL("image/x-icon");
+      }
+
+      setInterval(setRandomFavicon, 1001);
+
+      setRandomFavicon();
     </script>
   </body>
 </html>
