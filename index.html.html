@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Exponential Dot Animation</title>
+    <style>
+      body,
+      html {
+        height: 100%;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #f0f0f0;
+        font-family: Arial, sans-serif;
+      }
+      #animation-box {
+        width: 300px;
+        height: 300px;
+        border: 3px solid #333;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      }
+      .dot {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: white;
+        user-select: none;
+      }
+      #controls {
+        margin-top: 20px;
+        text-align: center;
+      }
+      button {
+        padding: 10px 20px;
+        margin: 5px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+      }
+      .start-button {
+        background-color: #4caf50;
+        color: white;
+      }
+      .start-button:hover {
+        background-color: #45a049;
+      }
+      .stop-button {
+        background-color: #f44336;
+        color: white;
+      }
+      .stop-button:hover {
+        background-color: #d32f2f;
+      }
+      #ballCount {
+        margin-top: 5px;
+        font-size: 16px;
+        color: #333;
+      }
+      .info-button {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        background: url("./info.png") no-repeat center;
+        background-size: 60%;
+        border-radius: 50%;
+        padding: 0;
+        border: none;
+        cursor: pointer;
+      }
+      #info-modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        text-align: center;
+      }
+      #info-modal img {
+        display: block;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin: 10px auto;
+      }
+      .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="animation-box"></div>
+    <div id="controls">
+      <button id="toggleMode" class="start-button">Start</button>
+      <div id="ballCount">Balls on screen: 1</div>
+      <button class="info-button"></button>
+    </div>
+    <div id="info-modal">
+      <span class="close-btn">&#10006;</span>
+      <img src="./nathan.jpg" alt="Nathan" />
+      <p>
+        This was created by
+        <a href="https://www.linkedin.com/in/nathanclark88/" target="_blank"
+          >Nathan</a
+        >.
+      </p>
+    </div>
+
+    <script>
+      var box = document.getElementById("animation-box");
+      var ballCountDisplay = document.getElementById("ballCount");
+      var toggleModeButton = document.getElementById("toggleMode");
+      var infoButton = document.querySelector(".info-button");
+      var infoModal = document.getElementById("info-modal");
+      var closeBtn = document.querySelector(".close-btn");
+      var modeActive = false;
+      var dots = [];
+
+      function updateBallCount() {
+        ballCountDisplay.textContent = "Balls on screen: " + dots.length;
+      }
+
+      function getRandomColor() {
+        var letters = "0123456789ABCDEF";
+        var color = "#";
+        for (var i = 0; i < 6; i++) {
+          color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+      }
+
+      function createDot() {
+        var x = box.offsetWidth / 2 - 10;
+        var y = box.offsetHeight / 2 - 10;
+        var dot = document.createElement("div");
+        dot.className = "dot";
+        dot.style.backgroundColor = getRandomColor();
+        dot.style.left = x + "px";
+        dot.style.top = y + "px";
+        box.appendChild(dot);
+        dots.push({
+          element: dot,
+          x: x,
+          y: y,
+          dx: Math.random() * 2 - 1,
+          dy: Math.random() * 2 - 1,
+        });
+        updateBallCount();
+      }
+
+      function splitDot(dot) {
+        createDot();
+        createDot();
+        dot.element.remove();
+      }
+
+      function updateDots() {
+        for (var i = dots.length - 1; i >= 0; i--) {
+          var dot = dots[i];
+          dot.x += dot.dx;
+          dot.y += dot.dy;
+
+          var hitWall =
+            dot.x < 0 ||
+            dot.x > box.offsetWidth - dot.element.offsetWidth ||
+            dot.y < 0 ||
+            dot.y > box.offsetHeight - dot.element.offsetHeight;
+
+          if (hitWall) {
+            if (modeActive) {
+              splitDot(dot);
+              dots.splice(i, 1);
+            } else {
+              dot.dx *= hitWall ? -1 : 1;
+              dot.dy *= hitWall ? -1 : 1;
+            }
+          }
+
+          if (!hitWall) {
+            dot.element.style.left = dot.x + "px";
+            dot.element.style.top = dot.y + "px";
+          }
+        }
+        updateBallCount();
+      }
+
+      createDot();
+
+      setInterval(updateDots, 10);
+
+      toggleModeButton.addEventListener("click", function () {
+        modeActive = !modeActive;
+        if (modeActive) {
+          this.textContent = "Stop";
+          this.className = "stop-button";
+        } else {
+          this.textContent = "Start";
+          this.className = "start-button";
+        }
+        if (!modeActive) {
+          dots.forEach(function (dot) {
+            dot.element.remove();
+          });
+          dots = [];
+          createDot();
+        }
+      });
+
+      infoButton.addEventListener("click", function () {
+        infoModal.style.display = "block";
+      });
+
+      closeBtn.addEventListener("click", function () {
+        infoModal.style.display = "none";
+      });
+    </script>
+  </body>
+</html>
